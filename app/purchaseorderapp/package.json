@@ -1,0 +1,23 @@
+{
+  "name": "purchaseorderapp",
+  "version": "0.0.1",
+  "description": "Manage Purchase Orders",
+  "keywords": [
+    "ui5",
+    "openui5",
+    "sapui5"
+  ],
+  "main": "webapp/index.html",
+  "devDependencies": {
+    "@sap/eslint-plugin-ui5-jsdocs": "2.0.5",
+    "@sap/ux-ui5-tooling": "1",
+    "@sapui5/ts-types": "~1.130.0",
+    "@ui5/cli": "^3.11.13",
+    "eslint": "8.57.0",
+    "ui5-task-zipper": "^3.6.1"
+  },
+  "scripts": {
+    "build:cf": "ui5 build --clean-dest --config ui5-deploy.yaml --include-task generateCachebusterInfo",
+    "start": "ui5 serve --config=ui5.yaml --open index.html"
+  }
+}

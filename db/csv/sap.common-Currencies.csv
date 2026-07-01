@@ -1,0 +1,14 @@
+code,symbol,name,descr
+AUD,a$,Austr. Dollar,Australian Dollar
+CAD,c$,Canadian Dollar,Canadian Dollar
+CNY,C,Renminbi,Chinese Renminbi
+EUR,,Euro,European Euro
+GBP,,Pound sterling,British Pound
+ILS,?,Scheckel,Israeli Scheckel
+INR,?,Rupee,Indian Rupee
+JPY,J,Yen,Japanese Yen
+QAR,,Rial,Qatar Rial
+SAR,,Rial,Saudi Riyal
+USD,$,US Dollar,United States Dollar
+MXN,$,Mexican Peso,Mexican Peso
+ARS,$,Argentine Peso,Argentine Peso

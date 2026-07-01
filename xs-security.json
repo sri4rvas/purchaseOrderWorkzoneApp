@@ -1,0 +1,228 @@
+{
+  "xsappname": "PurchaseOrder",
+  "description": "Security profile of called application",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.PurchaseOrder_Admin",
+      "description": "Admin for application"
+    },
+    {
+      "name": "$XSAPPNAME.Employee_Viewer",
+      "description": "Viewer for application"
+    },
+    {
+      "name": "$XSAPPNAME.PurchaseOrder_CompanyViewer",
+      "description": "View purchase orders restricted to a business Company"
+    },
+    {
+      "name": "$XSAPPNAME.PurchaseOrder_CountryViewer",
+      "description": "View purchase orders restricted to a Country"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "BankName",
+      "description": "Bank Name",
+      "valueType": "string"
+    },
+    {
+      "name": "PARTNER_GUID_NODE_KEY",
+      "description": "Business Partner GUID (purchase order filter)",
+      "valueType": "string"
+    },
+    {
+      "name": "Country",
+      "description": "Country (purchase order filter attribute controlled by administrator)",
+      "valueType": "string"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "PurchaseOrder_Admin",
+      "description": "Admin Role Template for Purchase Order Application",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_Admin"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "PurchaseOrder_CountryViewer",
+      "description": "Display Role Template(Country) for Purchase Order Application (attribute set by administrator)",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_CountryViewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "Country"
+        }
+      ]
+    },
+    {
+      "name": "PurchaseOrder_CountryViewer_US",
+      "description": "Purchase Orders placed by business partners in the United States",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_CountryViewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "Country",
+          "default-values": [
+            "United States"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PurchaseOrder_CountryViewer_India",
+      "description": "Purchase Orders placed by business partners in India",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_CountryViewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "Country",
+          "default-values": [
+            "India"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Employee_Viewer",
+      "description": "Display Role Template for Purchase Order Application (attribute set by administrator)",
+      "scope-references": [
+        "$XSAPPNAME.Employee_Viewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "BankName"
+        }
+      ]
+    },
+    {
+      "name": "Employee_Viewer_SanFrancisco",
+      "description": "Employee_Viewer restricted to My Bank of San Francisco",
+      "scope-references": [
+        "$XSAPPNAME.Employee_Viewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "BankName",
+          "default-values": [
+            "My Bank of San Francisco"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Employee_Viewer_London",
+      "description": "Employee_Viewer restricted to My Bank of London",
+      "scope-references": [
+        "$XSAPPNAME.Employee_Viewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "BankName",
+          "default-values": [
+            "My Bank of London"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PurchaseOrder_CompanyViewer",
+      "description": "View POs for the business Company assigned to this role (set PARTNER_GUID_NODE_KEY per role)",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_CompanyViewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "PARTNER_GUID_NODE_KEY"
+        }
+      ]
+    },
+    {
+      "name": "PurchaseOrder_Company_TokyoTech",
+      "description": "Example: POs of Tokyo Tech KK",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_CompanyViewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "PARTNER_GUID_NODE_KEY",
+          "default-values": [
+            "B0000000000000000000000000000001"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PurchaseOrder_Company_London",
+      "description": "Example: POs of London Components Ltd",
+      "scope-references": [
+        "$XSAPPNAME.PurchaseOrder_CompanyViewer"
+      ],
+      "attribute-references": [
+        {
+          "name": "PARTNER_GUID_NODE_KEY",
+          "default-values": [
+            "B0000000000000000000000000000002"
+          ]
+        }
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "Employee_Viewer_SanFrancisco",
+      "description": "Purchase Order Viewer - My Bank of San Francisco",
+      "role-template-references": [
+        "$XSAPPNAME.Employee_Viewer_SanFrancisco"
+      ]
+    },
+    {
+      "name": "Employee_Viewer_London",
+      "description": "Purchase Order Viewer - My Bank of London",
+      "role-template-references": [
+        "$XSAPPNAME.Employee_Viewer_London"
+      ]
+    },
+    {
+      "name": "PurchaseOrder_Company_TokyoTech",
+      "description": "PO Viewer - Tokyo Tech KK",
+      "role-template-references": [
+        "$XSAPPNAME.PurchaseOrder_Company_TokyoTech"
+      ]
+    },
+    {
+      "name": "PurchaseOrder_Company_London",
+      "description": "PO Viewer - London Components Ltd",
+      "role-template-references": [
+        "$XSAPPNAME.PurchaseOrder_Company_London"
+      ]
+    },
+    {
+      "name": "PurchaseOrder_from_India",
+      "description": "Purchase orders From India",
+      "role-template-references": [
+        "$XSAPPNAME.PurchaseOrder_CountryViewer_India"
+      ]
+    },
+    {
+      "name": "PurchaseOrder_from_US",
+      "description": "Purchase orders From United States",
+      "role-template-references": [
+        "$XSAPPNAME.PurchaseOrder_CountryViewer_US"
+      ]
+    }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://*.cfapps.us10-001.hana.ondemand.com/**",
+      "https://*.cfapps.us10.hana.ondemand.com/**",
+      "https://*.launchpad.cfapps.us10.hana.ondemand.com/**",
+      "https://*.hana.ondemand.com/**"
+    ]
+  }
+}

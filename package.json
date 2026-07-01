@@ -1,0 +1,147 @@
+{
+  "name": "purchaseorderapp",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": "^20 || ^22"
+  },
+  "dependencies": {
+    "@cap-js-community/odata-v2-adapter": "^1.13.6",
+    "@cap-js/hana": "^2",
+    "@sap/cds": "^9.9.1",
+    "@sap/eslint-plugin-ui5-jsdocs": "^2.0.5",
+    "@sap/xsenv": "^6.2.1",
+    "@sap/xssec": "^4.13.0",
+    "@sapui5/ts-types": "^1.92.2",
+    "cuid": "^3.0.0",
+    "eslint": "^10.5.0",
+    "express": "^5.2.1",
+    "passport": "^0.7.0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9",
+    "@sap/ux-specification": "UI5-1.130",
+    "hana-cli": "^1"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-purchaseorderapp": "cds watch --open purchaseorderapp/webapp/index.html?sap-ui-xx-viewCache=false"
+  },
+  "sapux": [
+    "app/purchaseorderapp"
+  ],
+  "cds": {
+    "hana": {
+      "deploy-format": "hdbtable"
+    },
+    "requires": {
+      "db": "hana",
+      "uaa": {
+        "kind": "xsuaa"
+      },
+      "auth": {
+        "[production]": {
+          "strategy": "JWT"
+        },
+        "[development]": {
+          "strategy": "mock",
+          "users": {
+            "srini": {
+              "password": "myPassword",
+              "roles": [
+                "PurchaseOrder_Admin",
+                "Employee_Viewer"
+              ],
+              "userAttributes": {
+                "BankName": [
+                  "$UNRESTRICTED"
+                ]
+              }
+            },
+            "srisow": {
+              "password": "myPassword",
+              "roles": [
+                "Employee_Viewer"
+              ],
+              "userAttributes": {
+                "BankName": [
+                  "My Bank of New York"
+                ]
+              }
+            },
+            "sf_viewer": {
+              "password": "myPassword",
+              "roles": [
+                "Employee_Viewer"
+              ],
+              "userAttributes": {
+                "BankName": [
+                  "My Bank of San Francisco"
+                ]
+              }
+            },
+            "ldn_viewer": {
+              "password": "myPassword",
+              "roles": [
+                "Employee_Viewer"
+              ],
+              "userAttributes": {
+                "BankName": [
+                  "My Bank of London"
+                ]
+              }
+            },
+            "company_tokyo": {
+              "password": "myPassword",
+              "roles": [
+                "PurchaseOrder_CompanyViewer"
+              ],
+              "userAttributes": {
+                "PARTNER_GUID_NODE_KEY": [
+                  "B0000000000000000000000000000001"
+                ]
+              }
+            },
+            "company_london": {
+              "password": "myPassword",
+              "roles": [
+                "PurchaseOrder_CompanyViewer"
+              ],
+              "userAttributes": {
+                "PARTNER_GUID_NODE_KEY": [
+                  "B0000000000000000000000000000002"
+                ]
+              }
+            },
+            "country_us": {
+              "password": "myPassword",
+              "roles": [
+                "PurchaseOrder_CountryViewer"
+              ],
+              "userAttributes": {
+                "Country": [
+                  "United States"
+                ]
+              }
+            },
+            "country_india": {
+              "password": "myPassword",
+              "roles": [
+                "PurchaseOrder_CountryViewer"
+              ],
+              "userAttributes": {
+                "Country": [
+                  "India"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

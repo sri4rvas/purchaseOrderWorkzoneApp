@@ -1,0 +1,18 @@
+specVersion: "3.1"
+metadata:
+  name: srini.app.purchaseorderapp
+type: application
+resources:
+  configuration:
+    propertiesFileSourceEncoding: UTF-8
+builder:
+  resources:
+    excludes:
+      - /test/**
+      - /localService/**
+  customTasks:
+    - name: ui5-task-zipper
+      afterTask: generateCachebusterInfo
+      configuration:
+        archiveName: purchaseorderapp
+        relativePaths: true
