@@ -1,0 +1,2 @@
+sap.ui.define(["sap/ui/core/mvc/ControllerExtension","srini/app/purchaseorderapp/ext/fragment/Attachments"],function(e,t){"use strict";return e.extend("srini.app.purchaseorderapp.ext.controller.ObjectPageExt",{override:{routing:{onAfterBinding:function(e){if(!e){return}var r=this.base.getView();var n=r&&r.getModel("att");if(!n){return}e.requestObject().then(function(e){if(e&&e.PO_ID&&e.NODE_KEY){t.loadInto(n,e.NODE_KEY)}else{n.setProperty("/items",[])}}).catch(function(){})}}}})});
+//# sourceMappingURL=ObjectPageExt.controller.js.map

@@ -1,0 +1,38 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified"
+    xmlns:l="sap.ui.layout"
+    xmlns:custom="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    core:require="{ H: 'srini/app/purchaseorderapp/ext/fragment/Attachments' }">
+    <VBox class="sapUiSmallMargin">
+        <l:HorizontalLayout allowWrapping="true" class="sapUiSmallMarginBottom">
+            <u:FileUploader
+                name="file"
+                buttonText="{i18n>chooseFile}"
+                placeholder="{i18n>chooseFilePlaceholder}"
+                sameFilenameAllowed="true"
+                change="H.onFileChange"/>
+            <Button
+                text="{i18n>refreshFiles}"
+                icon="sap-icon://refresh"
+                press="H.onRefresh"
+                class="sapUiTinyMarginBegin"/>
+        </l:HorizontalLayout>
+        <List
+            items="{att>/items}"
+            noDataText="{i18n>noAttachments}"
+            growing="true"
+            growingThreshold="20">
+            <StandardListItem
+                title="{att>fileName}"
+                description="{att>mimeType}"
+                info="{att>createdBy}"
+                icon="sap-icon://document"
+                iconInset="false"
+                type="Active"
+                press="H.onDownload"
+                custom:id="{att>ID}"/>
+        </List>
+    </VBox>
+</core:FragmentDefinition>

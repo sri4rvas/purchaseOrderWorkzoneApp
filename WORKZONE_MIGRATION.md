@@ -226,6 +226,26 @@ Queries run through `cds.connect.to('db')` with CQL (aggregations + the
 `PARTNER_GUID.ADDRESS_GUID.COUNTRY` path expression). Mounting via `cds.on('bootstrap')`
 coexists with the OData V4 services and the cov2ap V2 plugin.
 
+### UI consumption (Fiori Elements)
+The List Report / Object Page now actually use the above:
+- **Object Page → custom "Attachments" section** (`webapp/ext/fragment/Attachments.fragment.xml`
+  + `Attachments.js`): uploads/downloads go through the **OData media entity**
+  `CatalogService.Attachments` (not the REST API). A `FileUploader` (1) creates the row via
+  `POST /CatalogService/Attachments` (JSON metadata incl. `po_NODE_KEY` link) and (2) streams the
+  bytes via `PUT /CatalogService/Attachments(<ID>)/content` — both with a CSRF token fetched from
+  `/CatalogService/`. The list reads `GET /CatalogService/Attachments?$filter=po_NODE_KEY eq <key>`;
+  tapping a row downloads `GET /CatalogService/Attachments(<ID>)/content`. Registered in
+  `manifest.json` under the object page target `content.body.sections`; the list binds to a named
+  JSON model `att` created in `Component.js`. It **auto-loads** when the object page opens via an
+  ObjectPage controller extension (`webapp/ext/controller/ObjectPageExt.controller.js`, registered
+  under `sap.ui5.extends.extensions`) overriding `routing.onAfterBinding`; the Refresh button is a
+  manual reload. (Upload requires the `PurchaseOrder_Admin` role — the `Attachments` entity grants
+  write only to admins; other users can view/download.)
+- **List Report → "Statistics" action** (`webapp/ext/LRActions.js`): calls `/rest/po/summary`,
+  `/rest/po/by-country` and `/rest/health` and shows the result in a dialog. Registered under the
+  List Report `controlConfiguration → @UI.LineItem → actions`.
+- The REST attachment endpoints (`POST /rest/attachments`, `GET /rest/attachments/:id`, `GET /rest/po/:poId/attachments`) remain available as a REST sample, but the UI now uses the OData media entity above.
+
 ### File upload / download
 - **CAP media entity** `db/attachments.cds` → `srini.db.transaction.attachments`
   (`content : LargeBinary @Core.MediaType`), exposed as `CatalogService.Attachments`

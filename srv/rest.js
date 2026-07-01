@@ -64,6 +64,23 @@ module.exports = function () {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
+  // GET /rest/po/:poId/attachments — list attachment metadata for a purchase order
+  router.get('/po/:poId/attachments', async (req, res) => {
+    try {
+      const db = await cds.connect.to('db');
+      const { purchaseorder, attachments } = db.entities(TXN);
+      const po = await db.run(SELECT.one.from(purchaseorder).where({ PO_ID: req.params.poId }));
+      if (!po) return res.status(404).json({ error: `PO ${req.params.poId} not found` });
+      const rows = await db.run(
+        SELECT.from(attachments)
+          .columns('ID', 'fileName', 'mimeType', 'fileSize', 'note', 'createdAt', 'createdBy')
+          .where({ po_NODE_KEY: po.NODE_KEY })
+          .orderBy('createdAt desc')
+      );
+      res.json({ poId: req.params.poId, count: rows.length, attachments: rows });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
   // POST /rest/attachments — upload a file (multipart/form-data, field "file";
   // optional ?poId=<PO_ID> to link it, optional body field "note"). Admin only.
   router.post('/attachments', upload.single('file'), async (req, res) => {

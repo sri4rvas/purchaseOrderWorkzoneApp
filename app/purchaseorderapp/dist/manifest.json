@@ -58,6 +58,15 @@
   },
   "sap.ui5": {
     "flexEnabled": true,
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ObjectPage.ObjectPageController": {
+            "controllerName": "srini.app.purchaseorderapp.ext.controller.ObjectPageExt"
+          }
+        }
+      }
+    },
     "dependencies": {
       "minUI5Version": "1.130.0",
       "libs": {
@@ -157,6 +166,13 @@
                       "filter": true,
                       "sort": true
                     }
+                  },
+                  "actions": {
+                    "poStatistics": {
+                      "press": "srini.app.purchaseorderapp.ext.LRActions.onStatistics",
+                      "text": "{i18n>statisticsBtn}",
+                      "enabled": true
+                    }
                   }
                 }
               },
@@ -178,6 +194,19 @@
                 "Items": {
                   "detail": {
                     "route": "PurchaseOrderItemsObjectPage"
+                  }
+                }
+              },
+              "content": {
+                "body": {
+                  "sections": {
+                    "attachmentsSection": {
+                      "template": "srini.app.purchaseorderapp.ext.fragment.Attachments",
+                      "title": "{i18n>attachmentsTitle}",
+                      "position": {
+                        "placement": "After"
+                      }
+                    }
                   }
                 }
               }
