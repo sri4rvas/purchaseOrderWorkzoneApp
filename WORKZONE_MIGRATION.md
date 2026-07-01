@@ -181,9 +181,9 @@ product ← poitem.product, product = product_texts.
 Applied alongside the CDS 9 / Express 5 upgrade, following current CAP guidelines:
 
 - **OData V2 adapter as a cds-plugin.** `@cap-js-community/odata-v2-adapter` auto-registers
-  as a plugin in CDS 9, so the hand-written `srv/server.js`
-  (`cds.on('bootstrap', app => app.use(proxy()))`) was **removed**. The `/odata/v2` endpoint
-  is now mounted by the plugin automatically; the default `cds.server` is used.
+  as a plugin in CDS 9, so the old manual proxy bootstrap was removed. The `/odata/v2`
+  endpoint is mounted by the plugin automatically. (`srv/server.js` was later re-introduced
+  only to mount the custom REST API — see §9 — and does *not* re-add the V2 proxy.)
 - **Removed dead `cuid` import.** `srv/CatalogService.js` had an unused
   `const cuid = require('cuid')`. `cuid` v3 is ESM-only, so that `require` would throw at
   runtime under the upgraded deps. It was deleted (the handler never used it). `cuid` is now
@@ -198,3 +198,43 @@ Applied alongside the CDS 9 / Express 5 upgrade, following current CAP guideline
 
 `srv/` is now just `CatalogService.cds` + `CatalogService.js` (real, secured) and
 `CDSService.cds` (analytical, secured). The model compiles clean to V4 EDMX under CDS 9.9.x.
+
+---
+
+## 9. Additional features (admin-gated actions, REST API, uploads)
+
+### Create & Delete restricted to administrators
+- Backend already enforces it: the `PurchaseOrder` `@restrict` grants `['*']` only to
+  `PurchaseOrder_Admin`; other roles get READ. Non-admins attempting create/delete get 403.
+- UI: a virtual boolean `IsNotAdmin` is added to `PurchaseOrder` and bound to
+  `@UI.CreateHidden` / `@UI.DeleteHidden`, so the Fiori Elements **Create** and **Delete**
+  buttons are hidden for non-admins. `IsNotAdmin` is computed per request in
+  `CatalogService.js` (`this.after('READ', PurchaseOrder, …)` → `!req.user.is('PurchaseOrder_Admin')`).
+
+### Custom REST API (`srv/rest.js`, mounted at `/rest` by `srv/server.js`)
+Plain JSON endpoints (not OData), behind the approuter's authentication:
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /rest/health` | Liveness probe |
+| `GET /rest/po/summary` | Order count + gross total grouped by currency |
+| `GET /rest/po/by-country` | Order count grouped by the partner's country |
+| `GET /rest/po/:poId` | One purchase order (header + items) by business `PO_ID` |
+| `POST /rest/attachments` | Upload a file (see below) — admin only |
+| `GET /rest/attachments/:id` | Download a previously uploaded file |
+
+Queries run through `cds.connect.to('db')` with CQL (aggregations + the
+`PARTNER_GUID.ADDRESS_GUID.COUNTRY` path expression). Mounting via `cds.on('bootstrap')`
+coexists with the OData V4 services and the cov2ap V2 plugin.
+
+### File upload / download
+- **CAP media entity** `db/attachments.cds` → `srini.db.transaction.attachments`
+  (`content : LargeBinary @Core.MediaType`), exposed as `CatalogService.Attachments`
+  (READ for authenticated users, write for `PurchaseOrder_Admin`). Files upload/download
+  as binary streams over OData (`PUT`/`GET` on `Attachments(<ID>)/content`) and integrate
+  with the Fiori Elements upload control if an attachments facet is added to the object page.
+- **REST multipart upload** via `multer` (added to dependencies): `POST /rest/attachments`
+  with form field `file` (optional `?poId=<PO_ID>` to link, optional `note`), stored in the
+  same `attachments` table; `GET /rest/attachments/:id` streams it back.
+
+> Verify in the deployed app: FE `CreateHidden`/`DeleteHidden` rendering, and (on HANA)
+> the media-stream + REST upload round-trip. The model compiles clean to V4 EDMX under CDS 9.9.x.

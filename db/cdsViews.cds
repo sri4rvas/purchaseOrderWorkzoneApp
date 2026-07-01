@@ -36,7 +36,7 @@ context CDSViews {
                     text:'Prodekt ID'
                 }
              ]
-         key    PRODUCT_ID as ![ProductID],
+        key     PRODUCT_ID as ![ProductID],
 
               @EndUserText.label:[
                 {
@@ -67,7 +67,7 @@ define view![ItemView] as
 
 define view ProductViewSub as
   select from master.product as prod{
-  key  PRODUCT_ID as ![ProductId],
+   key PRODUCT_ID as ![ProductId],
     texts.DESCRIPTION as ![Description],
     (
       select from transaction.poitems as a{
@@ -102,7 +102,7 @@ define view ProductView as select from master.product
 
   define view CProductValueView as
      select from ProductView{
-        ProductId,
+      key  ProductId,
         Country,
         PO_ORDERS.CurrencyCode as ![CurrencyCode],
         sum(PO_ORDERS.GrossAmount) as ![POGrossAmount]:Decimal(15,2)

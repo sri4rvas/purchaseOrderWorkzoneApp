@@ -53,6 +53,16 @@ class CatalogService extends cds.ApplicationService {
          */
         const { EmployeeSet, PurchaseOrder } = this.entities;
 
+        //
+        // Hide Create/Delete in the Fiori UI for non-administrators.
+        // Sets the virtual IsNotAdmin flag that UI.CreateHidden/DeleteHidden bind to.
+        //
+        this.after('READ', PurchaseOrder, (data, req) => {
+            const isAdmin = !!(req.user && typeof req.user.is === 'function' && req.user.is('PurchaseOrder_Admin'));
+            const rows = Array.isArray(data) ? data : (data ? [data] : []);
+            for (const row of rows) if (row) row.IsNotAdmin = !isAdmin;
+        });
+
 
 
         //

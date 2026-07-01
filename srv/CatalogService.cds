@@ -2,6 +2,7 @@ using {
   srini.db.master,
   srini.db.transaction
 } from '../db/datamodel';
+using { srini.db.transaction.attachments } from '../db/attachments';
 
 @(path: '/CatalogService')
 service CatalogService @(requires:'authenticated-user'){
@@ -71,6 +72,7 @@ service CatalogService @(requires:'authenticated-user'){
           3
       end as Criticality      : Integer,
       PARTNER_GUID,
+      virtual null as IsNotAdmin : Boolean,
       Items                   : redirected to PurchaseOrderItems
     }
     actions {
@@ -82,6 +84,14 @@ service CatalogService @(requires:'authenticated-user'){
     GROSS_AMOUNT     @title: '{i18n>grossAmount}';
     LIFECYCLE_STATUS @title: '{i18n>lifeCycleStatus}'
   };
+
+  // Create & Delete buttons in the Fiori UI are hidden unless the user is an
+  // administrator. IsNotAdmin is computed per request in CatalogService.js.
+  // (The @restrict rules above still enforce this on the backend.)
+  annotate PurchaseOrder with @(
+    UI.CreateHidden: IsNotAdmin,
+    UI.DeleteHidden: IsNotAdmin
+  );
 
 
   entity PurchaseOrderItems @(
@@ -97,5 +107,13 @@ service CatalogService @(requires:'authenticated-user'){
       PARENT_KEY   : redirected to PurchaseOrder,
       PRODUCT_GUID : redirected to ProductSet
     };
+
+  // Media entity for uploaded files. Binary `content` streams via OData
+  // (GET/PUT on Attachments(ID)/content) and via the /rest/attachments endpoint.
+  @(restrict: [
+    {grant: ['READ'], to: 'authenticated-user'},
+    {grant: ['*'],    to: 'PurchaseOrder_Admin'}
+  ])
+  entity Attachments as projection on attachments;
 
 }
