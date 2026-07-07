@@ -13,17 +13,17 @@ sap.ui.define([
     }
 
     return {
-        // "Statistics" action on the List Report toolbar -> aggregates from the REST API.
-        // URLs are resolved relative to the app root so they work under the Work Zone approuter.
-        onStatistics: function () {
+        // "Statistics" action -> aggregates from the REST API. URLs are built from the OData
+        // model's service URL (captured on init) so they work in BAS and Work Zone alike.
+        onStatistics: function (oEvent) {
+            var oSrc = oEvent && oEvent.getSource && oEvent.getSource();
+            if (oSrc && oSrc.getModel) { Roles.captureBase(oSrc.getModel()); }
             Promise.all([
-                getJSON(Roles.appUrl("rest/po/summary")),
-                getJSON(Roles.appUrl("rest/po/by-country")),
-                getJSON(Roles.appUrl("rest/health"))
+                getJSON(Roles.restUrl("rest/po/summary")),
+                getJSON(Roles.restUrl("rest/po/by-country")),
+                getJSON(Roles.restUrl("rest/health"))
             ]).then(function (aResults) {
-                var oSummary = aResults[0] || {};
-                var oCountry = aResults[1] || {};
-                var oHealth = aResults[2] || {};
+                var oSummary = aResults[0] || {}, oCountry = aResults[1] || {}, oHealth = aResults[2] || {};
                 var aLines = [];
                 aLines.push("Service status : " + (oHealth.status || "?"));
                 aLines.push("Total orders   : " + (oSummary.totalOrders != null ? oSummary.totalOrders : "?"));

@@ -2,19 +2,30 @@ sap.ui.define([], function () {
     "use strict";
 
     var _adminPromise;
+    var _odataBase;   // resolved ".../CatalogService/" as used by the OData model (BAS & Work Zone)
 
-    // Resolve a path relative to THIS app's root so it works both locally and under the
-    // Work Zone managed approuter (which serves the app under a path prefix + ~cachebuster~).
-    // Absolute paths like "/CatalogService/..." would hit the launchpad site root (404).
-    function appUrl(sRelPath) {
-        return sap.ui.require.toUrl("srini/app/purchaseorderapp/" + String(sRelPath).replace(/^\//, ""));
+    // Capture the base URL from the default OData model. getServiceUrl() returns the URL
+    // Fiori Elements actually uses for data requests, so it is correct both locally (BAS)
+    // and under the Work Zone managed approuter (path prefix + ~cachebuster~).
+    function captureBase(oModel) {
+        if (_odataBase) { return; }
+        var s = oModel && oModel.getServiceUrl && oModel.getServiceUrl();
+        if (!s) { return; }
+        if (s.charAt(s.length - 1) !== "/") { s += "/"; }
+        _odataBase = s;
     }
 
-    // Whether the current user is an administrator (cached). Uses the CAP
-    // unbound function isAdmin(), where req.user is reliably populated.
+    function odataUrl(sPath) {
+        return (_odataBase || "/CatalogService/") + sPath;                 // -> .../CatalogService/<path>
+    }
+    function restUrl(sPath) {
+        return (_odataBase || "/CatalogService/").replace(/CatalogService\/$/, "") + sPath; // -> .../<path>
+    }
+
+    // Whether the current user is an administrator (cached), via the CAP isAdmin() function.
     function isAdmin() {
         if (!_adminPromise) {
-            _adminPromise = fetch(appUrl("CatalogService/isAdmin()"), { headers: { "Accept": "application/json" } })
+            _adminPromise = fetch(odataUrl("isAdmin()"), { headers: { "Accept": "application/json" } })
                 .then(function (r) { return r.ok ? r.json() : null; })
                 .then(function (d) { return !!(d && (d.value === true || d.isAdmin === true)); })
                 .catch(function () { return false; });
@@ -31,10 +42,10 @@ sap.ui.define([], function () {
         });
     }
 
-    // Hide the given Fiori Elements standard actions (Create/Update/Delete) for
-    // non-administrators. Retried a few times because FE builds the buttons async.
+    // Hide FE standard actions (Create/Update/Delete) for non-admins, retried for async rendering.
     function hideStandardActionsIfNotAdmin(oView, aKinds) {
         if (!oView) { return; }
+        captureBase(oView.getModel());
         isAdmin().then(function (bAdmin) {
             if (bAdmin) { return; }
             var oRegExp = new RegExp("StandardAction::(" + aKinds.join("|") + ")");
@@ -45,7 +56,9 @@ sap.ui.define([], function () {
     }
 
     return {
-        appUrl: appUrl,
+        captureBase: captureBase,
+        odataUrl: odataUrl,
+        restUrl: restUrl,
         isAdmin: isAdmin,
         hideStandardActionsIfNotAdmin: hideStandardActionsIfNotAdmin
     };
