@@ -30,7 +30,7 @@ sap.ui.define([
                 aLines.push("");
                 aLines.push("By currency:");
                 (oSummary.byCurrency || []).forEach(function (r) {
-                    aLines.push("   " + r.currency + " — " + r.count + " orders, gross " + r.totalGross);
+                    aLines.push("   " + r.currency_code + " — " + r.count + " orders, gross " + r.totalGross);
                 });
                 aLines.push("");
                 aLines.push("By country:");
