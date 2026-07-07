@@ -1,0 +1,2 @@
+sap.ui.define(["sap/ui/core/mvc/ControllerExtension","srini/app/purchaseorderapp/ext/lib/roles"],function(e,r){"use strict";return e.extend("srini.app.purchaseorderapp.ext.controller.ListReportExt",{override:{onInit:function(){r.hideStandardActionsIfNotAdmin(this.base.getView(),["Create","Delete"])}}})});
+//# sourceMappingURL=ListReportExt.controller.js.map

@@ -219,7 +219,7 @@ Plain JSON endpoints (not OData), behind the approuter's authentication:
 | `GET /rest/po/summary` | Order count + gross total grouped by currency |
 | `GET /rest/po/by-country` | Order count grouped by the partner's country |
 | `GET /rest/po/:poId` | One purchase order (header + items) by business `PO_ID` |
-| `POST /rest/attachments` | Upload a file (see below) — admin only |
+| `GET /rest/health` … `POST /rest/attachments` | (as below) — **all `/rest/*` routes require a route entry in `app/purchaseorderapp/webapp/xs-app.json` → destination `srv-api`, otherwise the approuter returns 404 \"Not Found\")** |
 | `GET /rest/attachments/:id` | Download a previously uploaded file |
 
 Queries run through `cds.connect.to('db')` with CQL (aggregations + the
@@ -228,19 +228,14 @@ coexists with the OData V4 services and the cov2ap V2 plugin.
 
 ### UI consumption (Fiori Elements)
 The List Report / Object Page now actually use the above:
-- **Object Page → custom "Attachments" section** (`webapp/ext/fragment/Attachments.fragment.xml`
-  + `Attachments.js`): uploads/downloads go through the **OData media entity**
-  `CatalogService.Attachments` (not the REST API). A `FileUploader` (1) creates the row via
-  `POST /CatalogService/Attachments` (JSON metadata incl. `po_NODE_KEY` link) and (2) streams the
-  bytes via `PUT /CatalogService/Attachments(<ID>)/content` — both with a CSRF token fetched from
-  `/CatalogService/`. The list reads `GET /CatalogService/Attachments?$filter=po_NODE_KEY eq <key>`;
-  tapping a row downloads `GET /CatalogService/Attachments(<ID>)/content`. Registered in
-  `manifest.json` under the object page target `content.body.sections`; the list binds to a named
-  JSON model `att` created in `Component.js`. It **auto-loads** when the object page opens via an
-  ObjectPage controller extension (`webapp/ext/controller/ObjectPageExt.controller.js`, registered
-  under `sap.ui5.extends.extensions`) overriding `routing.onAfterBinding`; the Refresh button is a
-  manual reload. (Upload requires the `PurchaseOrder_Admin` role — the `Attachments` entity grants
-  write only to admins; other users can view/download.)
+- **Object Page → Attachments facet (`@cap-js/attachments` plugin).** Attachments use the
+  SAP `@cap-js/attachments` plugin: `db/attachments.cds` does `extend purchaseorder with
+  { attachments : Composition of many Attachments }` (aspect from the plugin), referenced from
+  `db/index.cds`. The plugin **auto-generates the Attachments facet** on the object page with a
+  real **Upload** button and download links — no custom fragment/annotations. Files are stored
+  in the database (`cds.requires.attachments.kind: db`) and malware scanning is turned off
+  (`scan: false`, scanner pinned to the mock in `[production]`) so it runs on a trial without an
+  object store or the Malware Scanning service. Upload happens in Edit mode (admin-only).
 - **List Report → "Statistics" action** (`webapp/ext/LRActions.js`): calls `/rest/po/summary`,
   `/rest/po/by-country` and `/rest/health` and shows the result in a dialog. Registered under the
   List Report `controlConfiguration → @UI.LineItem → actions`.

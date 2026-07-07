@@ -1,19 +1,25 @@
 sap.ui.define([
-    "sap/m/MessageBox"
-], function (MessageBox) {
+    "sap/m/MessageBox",
+    "srini/app/purchaseorderapp/ext/lib/roles"
+], function (MessageBox, Roles) {
     "use strict";
 
     function getJSON(sUrl) {
-        return fetch(sUrl, { headers: { "Accept": "application/json" } }).then(function (r) { return r.json(); });
+        return fetch(sUrl, { headers: { "Accept": "application/json" } })
+            .then(function (r) {
+                if (!r.ok) { throw new Error("HTTP " + r.status); }
+                return r.json();
+            });
     }
 
     return {
-        // "Statistics" action on the List Report toolbar -> aggregates from the REST API
+        // "Statistics" action on the List Report toolbar -> aggregates from the REST API.
+        // URLs are resolved relative to the app root so they work under the Work Zone approuter.
         onStatistics: function () {
             Promise.all([
-                getJSON("/rest/po/summary"),
-                getJSON("/rest/po/by-country"),
-                getJSON("/rest/health")
+                getJSON(Roles.appUrl("rest/po/summary")),
+                getJSON(Roles.appUrl("rest/po/by-country")),
+                getJSON(Roles.appUrl("rest/health"))
             ]).then(function (aResults) {
                 var oSummary = aResults[0] || {};
                 var oCountry = aResults[1] || {};

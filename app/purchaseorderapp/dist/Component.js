@@ -1,2 +1,2 @@
-sap.ui.define(["sap/fe/core/AppComponent","sap/ui/model/json/JSONModel"],function(e,t){"use strict";return e.extend("srini.app.purchaseorderapp.Component",{metadata:{manifest:"json"},init:function(){e.prototype.init.apply(this,arguments);this.setModel(new t({items:[]}),"att")}})});
+sap.ui.define(["sap/fe/core/AppComponent"],function(e){"use strict";return e.extend("srini.app.purchaseorderapp.Component",{metadata:{manifest:"json"}})});
 //# sourceMappingURL=Component.js.map

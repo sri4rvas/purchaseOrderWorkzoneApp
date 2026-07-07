@@ -2,7 +2,6 @@ using {
   srini.db.master,
   srini.db.transaction
 } from '../db/datamodel';
-using { srini.db.transaction.attachments } from '../db/attachments';
 
 @(path: '/CatalogService')
 service CatalogService @(requires:'authenticated-user'){
@@ -73,7 +72,8 @@ service CatalogService @(requires:'authenticated-user'){
       end as Criticality      : Integer,
       PARTNER_GUID,
       virtual null as IsNotAdmin : Boolean,
-      Items                   : redirected to PurchaseOrderItems
+      Items                   : redirected to PurchaseOrderItems,
+      attachments
     }
     actions {
       function largestOrder() returns array of PurchaseOrder;
@@ -90,6 +90,7 @@ service CatalogService @(requires:'authenticated-user'){
   // (The @restrict rules above still enforce this on the backend.)
   annotate PurchaseOrder with @(
     UI.CreateHidden: IsNotAdmin,
+    UI.UpdateHidden: IsNotAdmin,
     UI.DeleteHidden: IsNotAdmin
   );
 
@@ -108,12 +109,9 @@ service CatalogService @(requires:'authenticated-user'){
       PRODUCT_GUID : redirected to ProductSet
     };
 
-  // Media entity for uploaded files. Binary `content` streams via OData
-  // (GET/PUT on Attachments(ID)/content) and via the /rest/attachments endpoint.
-  @(restrict: [
-    {grant: ['READ'], to: 'authenticated-user'},
-    {grant: ['*'],    to: 'PurchaseOrder_Admin'}
-  ])
-  entity Attachments as projection on attachments;
+
+  // Returns whether the current user has the administrator role.
+  // Used by the UI to reliably hide Create/Edit/Delete for non-admins.
+  function isAdmin() returns Boolean;
 
 }

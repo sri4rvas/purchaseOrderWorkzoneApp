@@ -63,6 +63,9 @@
         "sap.ui.controllerExtensions": {
           "sap.fe.templates.ObjectPage.ObjectPageController": {
             "controllerName": "srini.app.purchaseorderapp.ext.controller.ObjectPageExt"
+          },
+          "sap.fe.templates.ListReport.ListReportController": {
+            "controllerName": "srini.app.purchaseorderapp.ext.controller.ListReportExt"
           }
         }
       }
@@ -194,19 +197,6 @@
                 "Items": {
                   "detail": {
                     "route": "PurchaseOrderItemsObjectPage"
-                  }
-                }
-              },
-              "content": {
-                "body": {
-                  "sections": {
-                    "attachmentsSection": {
-                      "template": "srini.app.purchaseorderapp.ext.fragment.Attachments",
-                      "title": "{i18n>attachmentsTitle}",
-                      "position": {
-                        "placement": "After"
-                      }
-                    }
                   }
                 }
               }

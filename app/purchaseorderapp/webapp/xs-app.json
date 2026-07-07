@@ -13,6 +13,13 @@
       "csrfProtection": true
     },
     {
+      "source": "^/rest/(.*)$",
+      "target": "/rest/$1",
+      "destination": "srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",
       "destination": "srv-api",

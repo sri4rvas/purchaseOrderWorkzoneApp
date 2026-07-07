@@ -64,63 +64,8 @@ module.exports = function () {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  // GET /rest/po/:poId/attachments — list attachment metadata for a purchase order
-  router.get('/po/:poId/attachments', async (req, res) => {
-    try {
-      const db = await cds.connect.to('db');
-      const { purchaseorder, attachments } = db.entities(TXN);
-      const po = await db.run(SELECT.one.from(purchaseorder).where({ PO_ID: req.params.poId }));
-      if (!po) return res.status(404).json({ error: `PO ${req.params.poId} not found` });
-      const rows = await db.run(
-        SELECT.from(attachments)
-          .columns('ID', 'fileName', 'mimeType', 'fileSize', 'note', 'createdAt', 'createdBy')
-          .where({ po_NODE_KEY: po.NODE_KEY })
-          .orderBy('createdAt desc')
-      );
-      res.json({ poId: req.params.poId, count: rows.length, attachments: rows });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-  });
 
-  // POST /rest/attachments — upload a file (multipart/form-data, field "file";
-  // optional ?poId=<PO_ID> to link it, optional body field "note"). Admin only.
-  router.post('/attachments', upload.single('file'), async (req, res) => {
-    try {
-      if (req.user && !isAdmin(req)) return res.status(403).json({ error: 'administrator role required' });
-      if (!req.file) return res.status(400).json({ error: 'no file provided (form field "file")' });
-      const db = await cds.connect.to('db');
-      const { attachments, purchaseorder } = db.entities(TXN);
-      let po_NODE_KEY = null;
-      if (req.query.poId) {
-        const po = await db.run(SELECT.one.from(purchaseorder).where({ PO_ID: req.query.poId }));
-        po_NODE_KEY = po ? po.NODE_KEY : null;
-      }
-      const ID = cds.utils.uuid();
-      await db.run(INSERT.into(attachments).entries({
-        ID,
-        fileName: req.file.originalname,
-        mimeType: req.file.mimetype,
-        fileSize: req.file.size,
-        content: req.file.buffer,
-        note: (req.body && req.body.note) || null,
-        po_NODE_KEY
-      }));
-      res.status(201).json({ ID, fileName: req.file.originalname, mimeType: req.file.mimetype, fileSize: req.file.size, linkedPO: req.query.poId || null });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-  });
 
-  // GET /rest/attachments/:id — download a previously uploaded file
-  router.get('/attachments/:id', async (req, res) => {
-    try {
-      const db = await cds.connect.to('db');
-      const { attachments } = db.entities(TXN);
-      const row = await db.run(SELECT.one.from(attachments).where({ ID: req.params.id }));
-      if (!row || !row.content) return res.status(404).json({ error: 'attachment not found' });
-      const buf = Buffer.isBuffer(row.content) ? row.content : Buffer.from(row.content);
-      res.setHeader('Content-Type', row.mimeType || 'application/octet-stream');
-      res.setHeader('Content-Disposition', `attachment; filename="${row.fileName || req.params.id}"`);
-      res.send(buf);
-    } catch (e) { res.status(500).json({ error: e.message }); }
-  });
 
   return router;
 };

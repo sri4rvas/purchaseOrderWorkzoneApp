@@ -63,6 +63,11 @@ class CatalogService extends cds.ApplicationService {
             for (const row of rows) if (row) row.IsNotAdmin = !isAdmin;
         });
 
+        // Unbound function: is the current user an administrator?
+        this.on('isAdmin', (req) =>
+            !!(req.user && typeof req.user.is === 'function' && req.user.is('PurchaseOrder_Admin'))
+        );
+
 
 
         //
